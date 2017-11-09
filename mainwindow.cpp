@@ -149,11 +149,24 @@ void MainWindow::rebuild()
     if(numVin >= 0)
     {
         QStandardItem *item2;
-        for(int j=0;j<=colColumn; j++)
+        item2 = new QStandardItem("Результат");
+        item2->setFont(QFont("Arial",10,6500));
+        item2->setBackground(QBrush(QColor(170,255,100)) );
+        item2->setEditable(false);
+        item2->setSelectable(false);
+        model->setItem(colRow+1, 0, item2);
+        for(int j=0;j<colColumn; j++)
         {
-            item2 = new QStandardItem("u1");
-            item2->setFont(QFont("Arial",18,100));//указать веса
-            model->setItem(colRow+1, j, item2);
+            item2 = new QStandardItem(QString("%1").arg(weightTarget[j]));
+            item2->setFont(QFont("Arial",10,6500));//указать веса
+            item2->setBackground(QBrush(QColor(170,255,100)) );
+            model->setItem(colRow+1, j+1, item2);
+        }
+        //подсветка столбца с лучшим весом
+        for(int j=0; j < colRow; j++)
+        {
+            model->item(j+1,numVin+1)->setBackground(QBrush(QColor(140,255,100)) );
+
         }
     }
 
@@ -221,8 +234,10 @@ void MainWindow::calculate()
     weightTarget = new float[colRow];
     numVin=0;
     float max=0;
+    sum=0;
     for(int i=0; i<colColumn; i++)
     {
+        weightTarget[i]=0;
         for(int j=0; j<colRow; j++)
         {
             weightTarget[i] = weightTarget[i] + tableContent[j][i]*expertWeight[j];
@@ -232,9 +247,13 @@ void MainWindow::calculate()
             max=weightTarget[i];
             numVin=i;
         }
+        sum+=weightTarget[i];
         //
     }
-
+    for(int i=0; i<colColumn; i++)//cумма весов целей должны быть равной 1
+    {
+        weightTarget[i] = weightTarget[i] / sum;
+    }
 
 
     delete[]expertWeight;
